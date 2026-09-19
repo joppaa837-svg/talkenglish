@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.json">
+<title>TalkEnglish</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f6f7fb;color:#171717}
+.app{max-width:720px;margin:auto;min-height:100vh;background:#fff;box-shadow:0 0 30px #00000010}
+header{padding:22px 20px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:0 0 26px 26px}
+.logo{font-size:28px;font-weight:800}.muted{opacity:.85}.content{padding:20px 18px 90px}
+.card{background:#fff;border:1px solid #eee;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 4px 15px #00000008}
+.progress{height:10px;background:#e9e9ef;border-radius:20px;overflow:hidden}.progress i{display:block;width:35%;height:100%;background:#4f46e5}
+button{border:0;border-radius:14px;padding:14px 17px;font-size:16px;font-weight:700;cursor:pointer}
+.primary{background:#4f46e5;color:#fff;width:100%}.secondary{background:#eef0ff;color:#4338ca}
+.row{display:flex;gap:10px;align-items:center}.grow{flex:1}
+h1,h2,h3,p{margin-top:0}.english{font-size:23px;font-weight:800;direction:ltr;text-align:left}.arabic{font-size:17px}.pron{font-size:16px;color:#555}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);display:flex;background:#fff;border-top:1px solid #eee;padding:8px;z-index:5}
+.nav button{flex:1;background:transparent;font-size:12px;color:#555;padding:9px}.nav button.active{color:#4f46e5}
+.mic{width:92px;height:92px;border-radius:50%;font-size:34px;display:block;margin:20px auto;background:#4f46e5;color:white}
+.hidden{display:none}.tag{display:inline-block;background:#eef0ff;color:#4338ca;padding:6px 10px;border-radius:20px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">TalkEnglish 🗣️</div><div class="muted">اتعلم الإنجليزي بالكلام والاستماع والجمل</div></header>
+<main id="screen" class="content"></main>
+<nav class="nav">
+<button onclick="show('home')" id="n-home">🏠<br>الرئيسية</button>
+<button onclick="show('lessons')" id="n-lessons">📚<br>الدروس</button>
+<button onclick="show('progress')" id="n-progress">📈<br>تقدمي</button>
+<button onclick="show('profile')" id="n-profile">⚙️<br>حسابي</button>
+</nav>
+</div>
+<script>
+const S=document.getElementById('screen');
+function layout(title,html){S.innerHTML=`<h2>${title}</h2>${html}`}
+function show(x){
+document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+const n=document.getElementById('n-'+x);if(n)n.classList.add('active');
+if(x==='home') home(); if(x==='lessons') lessons(); if(x==='progress') progress(); if(x==='profile') profile();
+}
+function home(){layout('أهلاً بك 👋',`
+<div class="card"><h3>هدف اليوم 🎯</h3><p>10 دقائق تحدث</p><div class="progress"><i></i></div><p class="muted">3 / 10 دقائق</p></div>
+<div class="card"><span class="tag">A1 • الدرس 1</span><h3>Meeting Someone — التعارف</h3><p>اسمع، افهم، اتكلم، وبعدها ادخل في محادثة.</p><button class="primary" onclick="lesson()">ابدأ درس اليوم ▶</button></div>
+<div class="card"><h3>🎤 تحدث مع AI</h3><p>تدرب على مواقف حقيقية بدل حفظ الكلمات.</p><button class="secondary" onclick="speak()">ابدأ التدريب</button></div>
+<div class="card"><h3>🎮 تحديات</h3><p>XP • Streak • استماع • تكوين جمل</p></div>`)}
+function lesson(){layout('الدرس 1 • التعارف',`
+<p class="muted">كل جملة لها معنى بالعربي + نطق بالعربي + زر سماع.</p>
+${sentence("What's your name?","ما اسمك؟","واتس يور نيم؟")}
+${sentence("My name is Ahmed.","اسمي أحمد.","ماي نيم إز أحمد.")}
+${sentence("Nice to meet you.","سعيد بلقائك.","نايس تو ميت يو.")}
+<button class="primary" onclick="speak()">🎤 ابدأ التدريب بالكلام</button>`)}
+function sentence(en,ar,pr){return `<div class="card"><div class="row"><div class="grow"><div class="english">${en}</div><div class="arabic">المعنى: ${ar}</div><div class="pron">النطق: ${pr}</div></div><button class="secondary" onclick="say(${JSON.stringify(en)})">🔊</button></div></div>`}
+function speak(){layout('🎤 تحدث',`
+<div class="card" style="text-align:center"><h3>اسمع السؤال ثم جاوب بصوتك</h3><div class="english">What's your name?</div><p>ما اسمك؟</p><p class="pron">واتس يور نيم؟</p><button class="secondary" onclick="say("What's your name?")">🔊 اسمع</button><button id="mic" class="mic" onclick="record()">🎙️</button><p id="status">اضغط على الميكروفون وابدأ الكلام</p></div>
+<div class="card"><b>الهدف:</b> مش مطلوب تحفظ الإجابة؛ حاول تكوّن جملة بنفسك.</div>`)}
+let rec;
+function record(){const st=document.getElementById('status');if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){st.textContent='المتصفح لا يدعم التعرف على الصوت هنا. جرّب Chrome على Android.';return}
+const R=window.SpeechRecognition||window.webkitSpeechRecognition;rec=new R();rec.lang='en-US';rec.interimResults=false;rec.onstart=()=>st.textContent='🎤 جاري الاستماع...';rec.onresult=e=>{const t=e.results[0][0].transcript;st.innerHTML=`سمعت: <b dir="ltr">${t}</b><br>ممتاز! في النسخة القادمة سنضيف تقييم النطق والرد الذكي.`};rec.onerror=()=>st.textContent='حصلت مشكلة في الميكروفون. تأكد من السماح بالمايك.';rec.start()}
+function say(t){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u)}else alert('ميزة الصوت غير مدعومة في المتصفح.')}
+function lessons(){layout('📚 الدروس',`
+${['A1 — التعارف — Meeting Someone','A1 — المطعم — At the Restaurant','A1 — التسوق — Shopping','A2 — السفر والمطار — Travel & Airport','B1 — English at Work — الإنجليزية في العمل'].map((x,i)=>`<div class="card" onclick="${i===0?'lesson()':'alert(\\'الدرس قادم في النسخة التالية\\')'}"><b>${x}</b><p class="muted">استماع + كلام + جمل + محادثة</p></div>`).join('')}`)}
+function progress(){layout('📈 تقدمي',`
+<div class="card"><h3>المستوى</h3><b>A1 — مبتدئ</b></div>
+<div class="card"><h3>🔥 Streak</h3><b>7 أيام متتالية</b></div>
+<div class="card"><h3>⭐ XP</h3><b>350 نقطة خبرة</b></div>
+<div class="card"><h3>🗣️ التحدث</h3><b>12 دقيقة</b></div>
+<div class="card"><h3>🎧 الاستماع</h3><b>18 دقيقة</b></div>`)}
+function profile(){layout('⚙️ حسابي',`
+<div class="card"><b>الترجمة العربية</b><p>مفعلة دائمًا</p></div>
+<div class="card"><b>النطق بالعربي</b><p>مفعل</p></div>
+<div class="card"><b>سرعة الاستماع</b><p>عادية</p></div>
+<div class="card"><b>اللهجة</b><p>أمريكية — يمكن تغييرها لاحقًا</p></div>
+<div class="card"><b>📲 تثبيت التطبيق</b><p>من قائمة Chrome اختر «إضافة إلى الشاشة الرئيسية» إذا ظهر الخيار.</p></div>`)}
+show('home');
+</script>
+</body></html>
